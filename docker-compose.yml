@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: pikachu-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-pikachu_root_2024}
+      MYSQL_DATABASE: pikachu
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pikachu-net
+
+  pikachu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pikachu-app
+    restart: unless-stopped
+    ports:
+      - "${PIKACHU_PORT:-80}:80"
+    volumes:
+      - ./:/app:rw
+    environment:
+      DBHOST: mysql
+      DBUSER: root
+      DBPW: ${MYSQL_ROOT_PASSWORD:-pikachu_root_2024}
+      DBNAME: pikachu
+      DBNAME_XSS: pkxss
+      DBPORT: 3306
+    entrypoint: ["bash", "/app/docker-entrypoint.sh"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - pikachu-net
+
+volumes:
+  mysql_data:
+
+networks:
+  pikachu-net:
