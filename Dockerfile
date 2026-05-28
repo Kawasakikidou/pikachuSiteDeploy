@@ -1,28 +1,19 @@
-FROM ubuntu:22.04
+FROM php:8.1-apache
 
-LABEL description="Pikachu on PHP7.4 + Apache (ARM64/AMD64)"
+LABEL description="Pikachu on PHP8.1 + Apache (ARM64/AMD64)"
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Shanghai
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
-RUN echo 'Acquire::http::Timeout "30";' >> /etc/apt/apt.conf.d/99timeout && \
-    echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/99timeout && \
+RUN docker-php-ext-install mysqli pdo pdo_mysql && \
     apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common && \
-    add-apt-repository -y ppa:ondrej/php && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        apache2 libapache2-mod-php7.4 php7.4 php7.4-cli \
-        php7.4-mysql php7.4-curl php7.4-json php7.4-xml \
-        php7.4-mbstring php7.4-gd mysql-client && \
-    apt-get remove -y software-properties-common && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends default-mysql-client && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/display_startup_errors = Off/display_startup_errors = On/' \
            -e 's/display_errors = Off/display_errors = On/' \
            -e 's/allow_url_include = Off/allow_url_include = On/' \
            -e 's/allow_url_fopen = Off/allow_url_fopen = On/' \
-        /etc/php/7.4/apache2/php.ini && \
+        "$PHP_INI_DIR/php.ini" && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     a2enmod rewrite
 
