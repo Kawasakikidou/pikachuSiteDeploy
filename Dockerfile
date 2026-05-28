@@ -2,7 +2,9 @@ FROM mattrayner/lamp:latest-2004-php7
 LABEL maintainer="8023 - i@8023.moe"
 LABEL description="pikachu on php7 with expect @230613"
 COPY . /app/
-RUN apt-get update -y &&\
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list &&\
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list &&\
+    apt-get update -y &&\
     apt-get install -y php7.4-dev php-pear expect tcl-dev tcl-expect-dev &&\
     ln -s /usr/include/tcl8.6/tcl.h /usr/include/tcl.h &&\
     ln -s /usr/include/tcl8.6/tclDecls.h /usr/include/tclDecls.h &&\
