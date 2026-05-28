@@ -7,14 +7,8 @@ ENV TZ=Asia/Shanghai
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        apache2 \
-        php \
-        php-cli \
-        php-mysql \
-        php-curl \
-        php-mbstring \
-        php-gd \
-        php-xml \
+        apache2 libapache2-mod-php \
+        php php-cli php-mysql php-curl php-mbstring php-gd php-xml \
         mysql-client && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -23,8 +17,7 @@ RUN sed -i -e 's/display_startup_errors = Off/display_startup_errors = On/' \
            -e 's/allow_url_include = Off/allow_url_include = On/' \
            -e 's/allow_url_fopen = Off/allow_url_fopen = On/' \
         /etc/php/8.1/apache2/php.ini && \
-    echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
-    a2enmod rewrite
+    echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 COPY . /app/
 
@@ -33,7 +26,4 @@ RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /app|' /etc/apache2/sites-
 
 EXPOSE 80
 
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["apache2ctl", "-D", "FOREGROUND"]
