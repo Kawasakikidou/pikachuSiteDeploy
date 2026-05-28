@@ -18,9 +18,7 @@ services:
       - pikachu-net
 
   pikachu:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/kawasakikidou/pikachu:latest
     container_name: pikachu-app
     restart: unless-stopped
     ports:
