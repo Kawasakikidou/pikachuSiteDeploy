@@ -1,19 +1,28 @@
-FROM php:8.1-apache
+FROM ubuntu:22.04
 
 LABEL description="Pikachu on PHP8.1 + Apache (ARM64/AMD64)"
 
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
 
-RUN docker-php-ext-install mysqli pdo pdo_mysql && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends default-mysql-client && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        apache2 \
+        php \
+        php-cli \
+        php-mysql \
+        php-curl \
+        php-mbstring \
+        php-gd \
+        php-xml \
+        mysql-client && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/display_startup_errors = Off/display_startup_errors = On/' \
            -e 's/display_errors = Off/display_errors = On/' \
            -e 's/allow_url_include = Off/allow_url_include = On/' \
            -e 's/allow_url_fopen = Off/allow_url_fopen = On/' \
-        "$PHP_INI_DIR/php.ini" && \
+        /etc/php/8.1/apache2/php.ini && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     a2enmod rewrite
 
