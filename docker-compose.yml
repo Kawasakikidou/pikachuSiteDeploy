@@ -9,11 +9,6 @@ services:
       MYSQL_DATABASE: pikachu
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - pikachu-net
 
@@ -35,8 +30,7 @@ services:
       DBNAME_XSS: pkxss
       DBPORT: 3306
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     networks:
       - pikachu-net
 
